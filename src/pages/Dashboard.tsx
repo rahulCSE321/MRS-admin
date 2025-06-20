@@ -7,6 +7,7 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { ArrowUpRight, Users, DollarSign, CreditCard, Activity, Search, Bell, MoreHorizontal, Home, PieChart, UserCircle, Settings, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 // Mock data for charts
 const salesData = [
@@ -280,12 +281,6 @@ const DashboardSidebar = () => (
                 <span>Dashboard</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Analytics">
-                <PieChart className="h-5 w-5" />
-                <span>Analytics</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -294,15 +289,11 @@ const DashboardSidebar = () => (
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Users">
-                <UserCircle className="h-5 w-5" />
-                <span>Users</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Settings">
-                <Settings className="h-5 w-5" />
-                <span>Settings</span>
+              <SidebarMenuButton asChild tooltip="Users">
+                <Link to="/users">
+                  <UserCircle className="h-5 w-5" />
+                  <span>Users</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
