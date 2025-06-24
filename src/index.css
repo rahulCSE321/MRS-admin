@@ -99,3 +99,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+.error{
+  color:red;
+  }
+  
+  .circularProgress{
+    width: 100%;
+    display:flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+  .loader{
+    width: 100%;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
