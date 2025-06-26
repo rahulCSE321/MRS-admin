@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
+import { useGetPlanHistoryQuery } from "../features/api/adminApi";
 
 // Mock user plan history data
 const userPlanHistoryData = [
@@ -86,6 +87,15 @@ const userPlanHistoryData = [
 
 const UserPlanHistory = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const authToken=localStorage.getItem('authToken')
+
+  const {data,isLoading}=useGetPlanHistoryQuery(authToken ?? "",
+    {
+      skip: !authToken,
+    })
+
+  console.log(data)
   
   return (
     <SidebarProvider>
@@ -137,12 +147,18 @@ const UserPlanHistory = () => {
                       <TableHead>Plan ID</TableHead>
                       <TableHead>Plan Name</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Amount</TableHead>
                       <TableHead>Expired At</TableHead>
                       <TableHead>Created At</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userPlanHistoryData.map((record, index) => (
+                    {
+                      isLoading ? (
+                            <TableCell colSpan={7} className="text-center py-6 ">
+                                                  Loading Plan History...
+                                                </TableCell>
+                      ):   data?.data.map((record, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">
                           {record.userId}
@@ -181,13 +197,18 @@ const UserPlanHistory = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {record.expiredAt}
+                          {record.amount}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {record.createdAt}
+                          {record.expireAt}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {record.startDate}
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ))
+                    }
+                 
                   </TableBody>
                 </Table>
               </CardContent>

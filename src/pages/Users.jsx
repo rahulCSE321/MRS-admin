@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Card,
@@ -31,16 +31,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, Menu, UserCircle, Home, Activity, CreditCard, History } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Menu,
+  UserCircle,
+  Home,
+  Activity,
+  CreditCard,
+  History,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGetAllUsersWithPlanQuery } from "../features/api/adminApi";
+import { useGetAllUsersQuery } from "../features/api/adminApi";
 import { CircularProgress } from "@mui/material";
 
 const Users = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const authToken = localStorage.getItem("authToken");
+  const location = useLocation();
 
-  const { data, isLoading, isError, error } = useGetAllUsersWithPlanQuery(
+  const { data, isLoading, isError, error } = useGetAllUsersQuery(
     authToken ?? "",
     {
       skip: !authToken,
@@ -56,12 +66,9 @@ const Users = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-svh w-full">
-        {/* Sidebar */}
-        <UsersSidebar />
+        <UsersSidebar currentPath={location.pathname} />
 
-        {/* Main Content */}
         <SidebarInset>
-          {/* Header */}
           <header className="flex h-16 items-center border-b px-6 justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" className="md:hidden">
@@ -90,7 +97,6 @@ const Users = () => {
             </div>
           </header>
 
-          {/* Users Content */}
           <div className="p-6 space-y-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -100,95 +106,53 @@ const Users = () => {
                     Manage and view all users in the system
                   </CardDescription>
                 </div>
-                <Button>Add User</Button>
+                <Button asChild>
+                  <Link to="/add-user">Add User</Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User ID</TableHead>
+                      <TableHead>S.NO</TableHead>
                       <TableHead>Full Name</TableHead>
-                      <TableHead>Plan ID</TableHead>
-                      <TableHead>Plan Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Referred by</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Expires At</TableHead>
-                      <TableHead>Created At</TableHead>
+                      <TableHead>Rank</TableHead>
+                      <TableHead>Label</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-6 ">
-                          Loading users...
+                        <TableCell colSpan={8} className="text-center py-6">
+                          <div className="flex items-center justify-center gap-2">
+                            <CircularProgress size={20} />
+                            <span>Loading users...</span>
+                          </div>
                         </TableCell>
                       </TableRow>
-                    ) : data?.data?.length > 0 ? (
-                      data.data.map((user, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="font-medium">
-                            {user.userId}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              
-                              <div className="font-medium">{user.fullName}</div>
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback>
-                                  {user.fullName.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col gap-1">
-                                <div className="font-medium">{user.fullName}</div>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="w-fit text-xs h-6 px-2"
-                                >
-                                  Upline
-                                </Button>
-                              </div>
-                            </div>
-                          </TableCell>
+                    ) : data?.users?.length > 0 ? (
+                      data.users.map((user, i) => (
+                        <TableRow key={user._id || i}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell>{user.fullName || "N/A"}</TableCell>
+                          <TableCell>{user.email || "N/A"}</TableCell>
+                          <TableCell>{user.phone || "N/A"}</TableCell>
+                          <TableCell>{user.referrerName || "N/A"}</TableCell>
                           <TableCell className="text-muted-foreground">
-                            {user.planId}
+                            {user.status === true ? "Active" : "Inactive"}
                           </TableCell>
-                          <TableCell>
-                            <div
-                              className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full ${
-                                user.planName === "Enterprise"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : user.planName === "Premium"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {user.planName}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div
-                              className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full ${
-                                user.status === "Active"
-                                  ? "bg-green-100 text-green-800"
-                                  : user.status === "Expired"
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-yellow-100 text-yellow-800"
-                              }`}
-                            >
-                              {user.status}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {user.expireAt}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {user.createdAt}
-                          </TableCell>
+
+                          <TableCell>{user.rank || "N/A"}</TableCell>
+                          <TableCell>{user.level || "N/A"}</TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-6">
+                        <TableCell colSpan={8} className="text-center py-6">
                           No users found.
                         </TableCell>
                       </TableRow>
@@ -204,7 +168,7 @@ const Users = () => {
   );
 };
 
-const UsersSidebar = () => (
+const UsersSidebar = ({ currentPath }) => (
   <Sidebar variant="inset">
     <SidebarHeader>
       <div className="flex items-center gap-2 px-2">
@@ -235,9 +199,16 @@ const UsersSidebar = () => (
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton isActive tooltip="Users">
-                <UserCircle className="h-5 w-5" />
-                <span>Users</span>
+              <SidebarMenuButton asChild tooltip="Users">
+                <Link
+                  to="/users"
+                  className={
+                    currentPath === "/users" ? "font-semibold text-primary" : ""
+                  }
+                >
+                  <UserCircle className="h-5 w-5" />
+                  <span>Users</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>

@@ -3,13 +3,16 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Bell, Menu, UserCircle, Home, Activity, CreditCard, History } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
+import { useCreateMasterPlanMutation, useGetMasterPlanQuery } from "../features/api/adminApi";
+import toast from "react-hot-toast";
 
 // Mock master plan data
 const masterPlanData = [
@@ -55,6 +58,11 @@ const MasterPlan = () => {
     validity: ""
   });
 
+    const authToken = localStorage.getItem("authToken");
+
+
+  const [createMasterPlan,{data:masterPlan,isLoading,isSuccess,isError,error}]=useCreateMasterPlanMutation()
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -63,20 +71,33 @@ const MasterPlan = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    if (formData.planName && formData.amount && formData.validity) {
-      const newPlan = {
-        id: plans.length + 1,
-        planName: formData.planName,
-        amount: formData.amount,
-        validity: formData.validity
-      };
-      setPlans([...plans, newPlan]);
-      setFormData({ planName: "", amount: "", validity: "" });
-      setIsAddPlanOpen(false);
-    }
+  
+    await createMasterPlan({values:formData,token:authToken})
   };
+
+  const {data,refetch}=useGetMasterPlanQuery(authToken ?? "",
+    {
+      skip: !authToken,
+    })
+
+useEffect(() => {
+  if (isSuccess) {
+    toast.success("Plan created successfully!");
+    setFormData({ planName: "", amount: "", validity: "" });
+    setIsAddPlanOpen(false);
+    refetch()
+  }
+
+  if (isError && error?.data?.message) {
+    toast.error(error.data.message);
+  }
+}, [isSuccess, isError, error]);
+
+
+
+
   
   return (
     <SidebarProvider>
@@ -193,7 +214,7 @@ const MasterPlan = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {plans.map((plan) => (
+                    {data?.plans.map((plan) => (
                       <TableRow key={plan.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">

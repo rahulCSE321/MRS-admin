@@ -9,16 +9,45 @@ export const adminApi = createApi({
     credentials: "include",
   }),
   endpoints: (builder) => ({
-    getAllUsersWithPlan: builder.query({
+    getAllUsers: builder.query({
       query: (token) => ({
-        url: "plans/getAllUserPlans",
+        url: "users/getAllUsers",
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
     }),
+      getPlanHistory: builder.query({
+      query: (token) => ({
+        url: "plans/getAllUsersPlanHistory",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+      getMasterPlan: builder.query({
+      query: (token) => ({
+        url: "getAllMasterplans",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    createMasterPlan:builder.mutation({
+      query:({token,values})=>({
+        url:'CreateMasterplans',
+        method:"POST",
+         headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body:values
+      })
+    })
   }),
+  
 });
 
-export const { useGetAllUsersWithPlanQuery } = adminApi;
+export const { useGetAllUsersQuery,useGetPlanHistoryQuery,useGetMasterPlanQuery ,useCreateMasterPlanMutation} = adminApi;
