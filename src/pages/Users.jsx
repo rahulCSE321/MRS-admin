@@ -130,11 +130,7 @@ const Users = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback>
-                                  {user.fullName.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
+                              
                               <div className="font-medium">{user.fullName}</div>
                             </div>
                           </TableCell>
