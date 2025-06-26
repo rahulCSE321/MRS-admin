@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, Menu, UserCircle, Home, Activity } from "lucide-react";
+import { Search, Bell, Menu, UserCircle, Home, Activity, CreditCard, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetAllUsersWithPlanQuery } from "../features/api/adminApi";
 import { CircularProgress } from "@mui/material";
@@ -135,7 +135,16 @@ const Users = () => {
                                   {user.fullName.charAt(0)}
                                 </AvatarFallback>
                               </Avatar>
-                              <div className="font-medium">{user.fullName}</div>
+                              <div className="flex flex-col gap-1">
+                                <div className="font-medium">{user.fullName}</div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="w-fit text-xs h-6 px-2"
+                                >
+                                  Upline
+                                </Button>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
@@ -227,6 +236,22 @@ const UsersSidebar = () => (
               <SidebarMenuButton isActive tooltip="Users">
                 <UserCircle className="h-5 w-5" />
                 <span>Users</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Master Plan">
+                <Link to="/master-plan">
+                  <CreditCard className="h-5 w-5" />
+                  <span>Master Plan</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="User Plan History">
+                <Link to="/user-plan-history">
+                  <History className="h-5 w-5" />
+                  <span>User Plan History</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

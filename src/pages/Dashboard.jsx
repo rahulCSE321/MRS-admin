@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import { ArrowUpRight, Users, DollarSign, CreditCard, Activity, Search, Bell, MoreHorizontal, Home, PieChart, UserCircle, Settings, ChevronDown, Menu } from "lucide-react";
+import { ArrowUpRight, Users, DollarSign, CreditCard, Activity, Search, Bell, MoreHorizontal, Home, PieChart, UserCircle, Settings, ChevronDown, Menu, History } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -293,6 +293,22 @@ const DashboardSidebar = () => (
                 <Link to="/users">
                   <UserCircle className="h-5 w-5" />
                   <span>Users</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Master Plan">
+                <Link to="/master-plan">
+                  <CreditCard className="h-5 w-5" />
+                  <span>Master Plan</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="User Plan History">
+                <Link to="/user-plan-history">
+                  <History className="h-5 w-5" />
+                  <span>User Plan History</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
