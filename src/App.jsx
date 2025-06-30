@@ -8,26 +8,24 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import MasterPlan from "./pages/MasterPlan";
 import UserPlanHistory from "./pages/UserPlanHistory";
+import UsersIncome from "./pages/UsersIncome";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-    <Toaster position="bottom-center" />
-
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/master-plan" element={<MasterPlan />} />
-          <Route path="/user-plan-history" element={<UserPlanHistory />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/master-plan" element={<MasterPlan />} />
+        <Route path="/user-plan-history" element={<UserPlanHistory />} />
+        <Route path="/users-income" element={<UsersIncome />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

@@ -18,7 +18,7 @@ export const adminApi = createApi({
         },
       }),
     }),
-      getPlanHistory: builder.query({
+    getPlanHistory: builder.query({
       query: (token) => ({
         url: "plans/getAllUsersPlanHistory",
         method: "GET",
@@ -27,7 +27,7 @@ export const adminApi = createApi({
         },
       }),
     }),
-      getMasterPlan: builder.query({
+    getMasterPlan: builder.query({
       query: (token) => ({
         url: "getAllMasterplans",
         method: "GET",
@@ -36,18 +36,43 @@ export const adminApi = createApi({
         },
       }),
     }),
-    createMasterPlan:builder.mutation({
-      query:({token,values})=>({
-        url:'CreateMasterplans',
-        method:"POST",
-         headers: {
+    getUsersIncome: builder.mutation({
+      query: ({token,fromDate='',toDate='',page=1,search=''}) => ({
+        url: `wallets/admin-reward-history?fromDate=${fromDate}&toDate=${toDate}&page=${page}&search=${search}`,
+        method: "GET",
+        headers: {
           Authorization: `Bearer ${token}`,
         },
-        body:values
-      })
-    })
+      }),
+    }),
+    changeStatus: builder.mutation({
+      query: ({token,userId,status}) => ({
+        url: `users/change-status`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body:{status,userId}
+      }),
+    }),
+    createMasterPlan: builder.mutation({
+      query: ({ token, values }) => ({
+        url: "CreateMasterplans",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: values,
+      }),
+    }),
   }),
-  
 });
 
-export const { useGetAllUsersQuery,useGetPlanHistoryQuery,useGetMasterPlanQuery ,useCreateMasterPlanMutation} = adminApi;
+export const {
+  useGetAllUsersQuery,
+  useGetPlanHistoryQuery,
+  useGetMasterPlanQuery,
+  useCreateMasterPlanMutation,
+useGetUsersIncomeMutation,
+useChangeStatusMutation
+} = adminApi;

@@ -312,6 +312,14 @@ const DashboardSidebar = () => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+                <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="User Plan History">
+                <Link to="/users-income">
+                  <History className="h-5 w-5" />
+                  <span>User's Income</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

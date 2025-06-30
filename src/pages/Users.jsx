@@ -42,26 +42,72 @@ import {
   History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGetAllUsersQuery } from "../features/api/adminApi";
-import { CircularProgress } from "@mui/material";
+import {
+  useChangeStatusMutation,
+  useGetAllUsersQuery,
+} from "../features/api/adminApi";
+import { CircularProgress, Switch } from "@mui/material";
 
 const Users = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const authToken = localStorage.getItem("authToken");
   const location = useLocation();
+  const [userStatusMap, setUserStatusMap] = useState({});
 
-  const { data, isLoading, isError, error } = useGetAllUsersQuery(
+  const { data, isLoading, isError, error, refetch } = useGetAllUsersQuery(
     authToken ?? "",
     {
       skip: !authToken,
     }
   );
 
+  const [
+    changeStatus,
+    {
+      data: statusChangeData,
+      isLoading: tatusChangeLoading,
+      isError: tatusChangesIsError,
+      error: tatusChangeError,
+      isSuccess: tatusChangeIsSuccess,
+    },
+  ] = useChangeStatusMutation();
+
+  const handleChangeStatus = async (id, newStatus) => {
+    try {
+      await changeStatus({
+        userId: id,
+        token: localStorage.getItem("authToken"),
+        status: newStatus,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isError && error?.data?.message) {
       toast.error(error.data.message);
     }
   }, [error, isError]);
+
+  useEffect(() => {
+    if (tatusChangeIsSuccess && statusChangeData?.message) {
+      toast.success(statusChangeData.message);
+      refetch();
+    } else if (tatusChangesIsError && tatusChangeError?.data?.message) {
+      toast.error(tatusChangeError.data.message);
+    }
+  }, [tatusChangeIsSuccess, tatusChangesIsError]);
+
+  useEffect(() => {
+    if (data?.users?.length) {
+      const map = {};
+      data.users.forEach((user) => {
+        map[user._id] = user.status;
+      });
+      setUserStatusMap(map);
+    }
+  }, [data]);
 
   return (
     <SidebarProvider>
@@ -122,12 +168,13 @@ const Users = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Rank</TableHead>
                       <TableHead>Label</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-6">
+                        <TableCell colSpan={9} className="text-center py-6">
                           <div className="flex items-center justify-center gap-2">
                             <CircularProgress size={20} />
                             <span>Loading users...</span>
@@ -145,14 +192,26 @@ const Users = () => {
                           <TableCell className="text-muted-foreground">
                             {user.status === true ? "Active" : "Inactive"}
                           </TableCell>
-
                           <TableCell>{user.rank || "N/A"}</TableCell>
                           <TableCell>{user.level || "N/A"}</TableCell>
+                          <TableCell>
+                            <Switch
+                              checked={userStatusMap[user._id] || false}
+                              onChange={(e) => {
+                                const newStatus = e.target.checked;
+                                setUserStatusMap((prev) => ({
+                                  ...prev,
+                                  [user._id]: newStatus,
+                                }));
+                                handleChangeStatus(user.userId, newStatus);
+                              }}
+                            />
+                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-6">
+                        <TableCell colSpan={9} className="text-center py-6">
                           No users found.
                         </TableCell>
                       </TableRow>
@@ -224,6 +283,14 @@ const UsersSidebar = ({ currentPath }) => (
                 <Link to="/user-plan-history">
                   <History className="h-5 w-5" />
                   <span>User Plan History</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="User's Income">
+                <Link to="/users-income">
+                  <History className="h-5 w-5" />
+                  <span>User's Income</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

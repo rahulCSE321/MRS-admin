@@ -1,18 +1,63 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, Menu, UserCircle, Home, Activity, CreditCard, History } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Menu,
+  UserCircle,
+  Home,
+  Activity,
+  CreditCard,
+  History,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+} from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 import { Label } from "@/components/ui/label";
-import { useCreateMasterPlanMutation, useGetMasterPlanQuery } from "../features/api/adminApi";
+import {
+  useCreateMasterPlanMutation,
+  useGetMasterPlanQuery,
+} from "../features/api/adminApi";
 import toast from "react-hot-toast";
+import { CircularProgress } from "@mui/material";
 
 // Mock master plan data
 const masterPlanData = [
@@ -20,32 +65,32 @@ const masterPlanData = [
     id: 1,
     planName: "Basic Plan",
     amount: "$9.99",
-    validity: "1 Month"
+    validity: "1 Month",
   },
   {
     id: 2,
     planName: "Premium Plan",
     amount: "$19.99",
-    validity: "3 Months"
+    validity: "3 Months",
   },
   {
     id: 3,
     planName: "Enterprise Plan",
     amount: "$49.99",
-    validity: "6 Months"
+    validity: "6 Months",
   },
   {
     id: 4,
     planName: "Pro Plan",
     amount: "$29.99",
-    validity: "1 Year"
+    validity: "1 Year",
   },
   {
     id: 5,
     planName: "Starter Plan",
     amount: "$4.99",
-    validity: "2 Weeks"
-  }
+    validity: "2 Weeks",
+  },
 ];
 
 const MasterPlan = () => {
@@ -55,56 +100,53 @@ const MasterPlan = () => {
   const [formData, setFormData] = useState({
     planName: "",
     amount: "",
-    validity: ""
+    validity: "",
   });
 
-    const authToken = localStorage.getItem("authToken");
+  const authToken = localStorage.getItem("authToken");
 
-
-  const [createMasterPlan,{data:masterPlan,isLoading,isSuccess,isError,error}]=useCreateMasterPlanMutation()
+  const [
+    createMasterPlan,
+    { data: masterPlan, isLoading, isSuccess, isError, error },
+  ] = useCreateMasterPlanMutation();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    await createMasterPlan({values:formData,token:authToken})
+
+    await createMasterPlan({ values: formData, token: authToken });
   };
 
-  const {data,refetch}=useGetMasterPlanQuery(authToken ?? "",
-    {
-      skip: !authToken,
-    })
+  const { data, refetch ,isLoading:dataLoading} = useGetMasterPlanQuery(authToken ?? "", {
+    skip: !authToken,
+  });
 
-useEffect(() => {
-  if (isSuccess) {
-    toast.success("Plan created successfully!");
-    setFormData({ planName: "", amount: "", validity: "" });
-    setIsAddPlanOpen(false);
-    refetch()
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Plan created successfully!");
+      setFormData({ planName: "", amount: "", validity: "" });
+      setIsAddPlanOpen(false);
+      refetch();
+    }
 
-  if (isError && error?.data?.message) {
-    toast.error(error.data.message);
-  }
-}, [isSuccess, isError, error]);
+    if (isError && error?.data?.message) {
+      toast.error(error.data.message);
+    }
+  }, [isSuccess, isError, error]);
 
-
-
-
-  
   return (
     <SidebarProvider>
       <div className="flex min-h-svh w-full">
         {/* Sidebar */}
         <MasterPlanSidebar />
-        
+
         {/* Main Content */}
         <SidebarInset>
           {/* Header */}
@@ -116,14 +158,21 @@ useEffect(() => {
               <h1 className="text-xl font-semibold">Master Plan</h1>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSearchOpen(true)}
+              >
                 <Search className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
               <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" alt="Admin User" />
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="Admin User"
+                />
                 <AvatarFallback>AU</AvatarFallback>
               </Avatar>
             </div>
@@ -136,7 +185,9 @@ useEffect(() => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>All Plans</CardTitle>
-                  <CardDescription>Manage and view all subscription plans</CardDescription>
+                  <CardDescription>
+                    Manage and view all subscription plans
+                  </CardDescription>
                 </div>
                 <Dialog open={isAddPlanOpen} onOpenChange={setIsAddPlanOpen}>
                   <DialogTrigger asChild>
@@ -195,7 +246,11 @@ useEffect(() => {
                         </div>
                       </div>
                       <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setIsAddPlanOpen(false)}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsAddPlanOpen(false)}
+                        >
                           Cancel
                         </Button>
                         <Button type="submit">Add Plan</Button>
@@ -214,26 +269,37 @@ useEffect(() => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data?.plans.map((plan) => (
-                      <TableRow key={plan.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                              <CreditCard className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="font-medium">{plan.planName}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-semibold text-green-600">
-                          {plan.amount}
-                        </TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                            {plan.validity}
+                    {dataLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-6">
+                          <div className="flex items-center justify-center gap-2">
+                            <CircularProgress size={20} />
+                            <span>Loading users...</span>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      data?.plans.map((plan) => (
+                        <TableRow key={plan.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
+                                <CreditCard className="h-4 w-4 text-primary" />
+                              </div>
+                              <div className="font-medium">{plan.planName}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-semibold text-green-600">
+                            {plan.amount}
+                          </TableCell>
+                          <TableCell>
+                            <div className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                              {plan.validity}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -298,6 +364,12 @@ const MasterPlanSidebar = () => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="User Plan History">
+              <Link to="/users-income">
+                <History className="h-5 w-5" />
+                <span>User's Income</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -317,4 +389,4 @@ const MasterPlanSidebar = () => (
   </Sidebar>
 );
 
-export default MasterPlan; 
+export default MasterPlan;

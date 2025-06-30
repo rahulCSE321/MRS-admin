@@ -273,6 +273,12 @@ const UserPlanHistorySidebar = () => (
                 <span>User Plan History</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+               <SidebarMenuButton asChild tooltip="User Plan History">
+                <Link to="/users-income">
+                  <History className="h-5 w-5" />
+                  <span>User's Income</span>
+                </Link>
+              </SidebarMenuButton>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
