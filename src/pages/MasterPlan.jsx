@@ -370,6 +370,14 @@ const MasterPlanSidebar = () => (
                 <span>User's Income</span>
               </Link>
             </SidebarMenuButton>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Bank">
+                <Link to="/banks">
+                  <History className="h-5 w-5" />
+                  <span>Bank</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

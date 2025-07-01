@@ -313,10 +313,18 @@ const DashboardSidebar = () => (
               </SidebarMenuButton>
             </SidebarMenuItem>
                 <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="User Plan History">
+              <SidebarMenuButton asChild tooltip="User Income">
                 <Link to="/users-income">
                   <History className="h-5 w-5" />
                   <span>User's Income</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Bank">
+                <Link to="/banks">
+                  <History className="h-5 w-5" />
+                  <span>Bank</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

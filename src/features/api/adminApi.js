@@ -10,8 +10,8 @@ export const adminApi = createApi({
   }),
   endpoints: (builder) => ({
     getAllUsers: builder.query({
-      query: (token) => ({
-        url: "users/getAllUsers",
+      query: ({token,page=1}) => ({
+        url: `users/getAllUsers?page=${page}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,6 +30,24 @@ export const adminApi = createApi({
     getMasterPlan: builder.query({
       query: (token) => ({
         url: "getAllMasterplans",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    getBankDetailsById: builder.mutation({
+      query: ({token,userId}) => ({
+        url: `banks/getBanksByUserId/${userId}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    getUserUpline: builder.mutation({
+      query: ({token,userId,uplinePage=1}) => ({
+        url: `users/getUplineList/${userId}?page=${uplinePage}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,5 +92,7 @@ export const {
   useGetMasterPlanQuery,
   useCreateMasterPlanMutation,
 useGetUsersIncomeMutation,
-useChangeStatusMutation
+useChangeStatusMutation,
+useGetUserUplineMutation,
+useGetBankDetailsByIdMutation
 } = adminApi;

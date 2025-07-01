@@ -435,7 +435,7 @@ const UsersSidebar = ({ currentPath }) => (
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Dashboard">
+              <SidebarMenuButton asChild i tooltip="Dashboard">
                 <Link to="/dashboard">
                   <Home className="h-5 w-5" />
                   <span>Dashboard</span>
@@ -471,7 +471,7 @@ const UsersSidebar = ({ currentPath }) => (
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="User Plan History">
+              <SidebarMenuButton asChild  tooltip="User Plan History">
                 <Link to="/user-plan-history">
                   <History className="h-5 w-5" />
                   <span>User Plan History</span>
@@ -479,10 +479,18 @@ const UsersSidebar = ({ currentPath }) => (
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="User Plan History">
+              <SidebarMenuButton asChild isActive tooltip="User Plan History">
                 <Link to="/users-income">
                   <History className="h-5 w-5" />
                   <span>User's Income </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Bank">
+                <Link to="/banks">
+                  <History className="h-5 w-5" />
+                  <span>Bank</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
