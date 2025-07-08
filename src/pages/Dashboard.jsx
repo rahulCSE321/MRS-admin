@@ -328,6 +328,22 @@ const DashboardSidebar = () => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Recharge Wallet">
+                <Link to="/recharge-wallet">
+                  <History className="h-5 w-5" />
+                  <span>Recharge User Wallet</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Rank">
+                <Link to="/ranks">
+                  <History className="h-5 w-5" />
+                  <span>Rank</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

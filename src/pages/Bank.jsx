@@ -102,11 +102,11 @@ const Bank = () => {
       toast.error(error?.data.message || "Something went wrong");
     }
   }, [isError, error]);
-  useEffect(() => {
-    if (bankDetailsIsError && bankDetailsError) {
-      toast.error(bankDetailsError?.data?.message || "Something went wrong");
-    }
-  }, [bankDetailsIsError, bankDetailsError]);
+  // useEffect(() => {
+  //   if (bankDetailsIsError && bankDetailsError) {
+  //     toast.error(bankDetailsError?.data?.message || "Something went wrong");
+  //   }
+  // }, [bankDetailsIsError, bankDetailsError]);
 
   const resultPerPage = data?.limit || 0;
   const totalUsers = data?.total || 0;
@@ -305,7 +305,7 @@ const Bank = () => {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center",
+                    
                     }}
                   >
                     <BankDetail>
@@ -333,25 +333,10 @@ const Bank = () => {
                         <Paragraph>IFSC Code</Paragraph>
                         <CurPara>{curBank?.ifsc || "N/A"}</CurPara>
                       </BankDetails>
-                      <BankDetails>
-                        <Paragraph>Bank Id</Paragraph>
-                        <CurPara>{curBank?.bankId || "N/A"}</CurPara>
-                      </BankDetails>
+                    
                     </BankDetail>
                   </div>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={handleCloseDialogBox}
-                    sx={{
-                      backgroundColor: "green",
-                      color: "white",
-                      textTransform: "capitalize",
-                      height: "50px",
-                    }}
-                  >
-                    Close
-                  </Button>
+                 
                 </BankDetailsContainer>
               );
             })
@@ -430,6 +415,22 @@ const MasterPlanSidebar = () => (
                 <Link to="/banks">
                   <History className="h-5 w-5" />
                   <span>Bank</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+              <SidebarMenuItem>
+                          <SidebarMenuButton asChild tooltip="Recharge Wallet">
+                            <Link to="/recharge-wallet">
+                              <History className="h-5 w-5" />
+                              <span>Recharge User Wallet</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                          <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Rank">
+                <Link to="/ranks">
+                  <History className="h-5 w-5" />
+                  <span>Rank</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

@@ -9,81 +9,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, Sid
 import { Link } from "react-router-dom";
 import { useGetPlanHistoryQuery } from "../features/api/adminApi";
 
-// Mock user plan history data
-const userPlanHistoryData = [
-  {
-    userId: "USR001",
-    fullName: "Alex Johnson",
-    planId: "PLAN_001",
-    planName: "Premium",
-    status: "Active",
-    expiredAt: "2024-12-31",
-    createdAt: "2024-01-15"
-  },
-  {
-    userId: "USR001",
-    fullName: "Alex Johnson",
-    planId: "PLAN_002",
-    planName: "Basic",
-    status: "Expired",
-    expiredAt: "2024-01-14",
-    createdAt: "2023-10-01"
-  },
-  {
-    userId: "USR002",
-    fullName: "Samantha Miller",
-    planId: "PLAN_002",
-    planName: "Basic",
-    status: "Active",
-    expiredAt: "2024-11-30",
-    createdAt: "2024-02-20"
-  },
-  {
-    userId: "USR003",
-    fullName: "Robert Davis",
-    planId: "PLAN_001",
-    planName: "Premium",
-    status: "Expired",
-    expiredAt: "2024-03-15",
-    createdAt: "2023-12-10"
-  },
-  {
-    userId: "USR003",
-    fullName: "Robert Davis",
-    planId: "PLAN_003",
-    planName: "Enterprise",
-    status: "Active",
-    expiredAt: "2025-03-15",
-    createdAt: "2024-03-16"
-  },
-  {
-    userId: "USR004",
-    fullName: "Emma Wilson",
-    planId: "PLAN_003",
-    planName: "Enterprise",
-    status: "Active",
-    expiredAt: "2025-01-31",
-    createdAt: "2024-01-05"
-  },
-  {
-    userId: "USR005",
-    fullName: "Michael Brown",
-    planId: "PLAN_002",
-    planName: "Basic",
-    status: "Inactive",
-    expiredAt: "2024-06-15",
-    createdAt: "2024-03-12"
-  },
-  {
-    userId: "USR006",
-    fullName: "Sarah Davis",
-    planId: "PLAN_001",
-    planName: "Premium",
-    status: "Active",
-    expiredAt: "2024-12-20",
-    createdAt: "2024-03-20"
-  }
-];
+
 
 const UserPlanHistory = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -148,8 +74,8 @@ const UserPlanHistory = () => {
                       <TableHead>Plan Name</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Amount</TableHead>
-                      <TableHead>Expired At</TableHead>
                       <TableHead>Created At</TableHead>
+                      <TableHead>Expired At</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -199,12 +125,13 @@ const UserPlanHistory = () => {
                         <TableCell className="text-muted-foreground">
                           {record.amount}
                         </TableCell>
+                           <TableCell className="text-muted-foreground">
+                          {record.startDate}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {record.expireAt}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {record.startDate}
-                        </TableCell>
+                     
                       </TableRow>
                     ))
                     }
@@ -284,6 +211,22 @@ const UserPlanHistorySidebar = () => (
                 <Link to="/banks">
                   <History className="h-5 w-5" />
                   <span>Bank</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+              <SidebarMenuItem>
+                          <SidebarMenuButton asChild tooltip="Recharge Wallet">
+                            <Link to="/recharge-wallet">
+                              <History className="h-5 w-5" />
+                              <span>Recharge User Wallet</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                          <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Rank">
+                <Link to="/ranks">
+                  <History className="h-5 w-5" />
+                  <span>Rank</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

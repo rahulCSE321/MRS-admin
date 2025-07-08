@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../features/api/authApi";
 
 const Login = () => {
-  const [loginUser, { data, isError, isLoading, isSuccess, error }] =
-    useLoginMutation();
+  const [loginUser, { data, isError, isLoading, isSuccess, error }] =useLoginMutation();
 
 
   const navigate = useNavigate();

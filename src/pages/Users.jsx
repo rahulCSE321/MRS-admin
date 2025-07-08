@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {
   Card,
   CardContent,
@@ -46,6 +49,7 @@ import {
   useChangeStatusMutation,
   useGetAllUsersQuery,
   useGetUserUplineMutation,
+  useRegisterNewUserMutation,
 } from "../features/api/adminApi";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import {
@@ -64,20 +68,35 @@ const Users = () => {
   const authToken = localStorage.getItem("authToken");
   const location = useLocation();
   const [page, setPage] = useState(1);
-const [uplinePage, setUplinePage] = useState(1)
-const [selectedUserId, setSelectedUserId] = useState(null);
-
+  const [uplinePage, setUplinePage] = useState(1);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [openAnotherDialogBox, setOpenAnotherDialogBox] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [userStatusMap, setUserStatusMap] = useState({});
+  const [Image, setImage] = useState(null);
 
   const handleCloseDialogBox = () => {
     setOpenDrawer(!openDrawer);
   };
+  const handleCloseAnotherDialogBox = () => {
+    setOpenAnotherDialogBox(!openAnotherDialogBox);
+  };
 
-const { data, isLoading, isError, error, refetch } = useGetAllUsersQuery(
-  { token: authToken, page },
-  { refetchOnMountOrArgChange: true } 
-);
+  const { data, isLoading, isError, error, refetch } = useGetAllUsersQuery(
+    { token: authToken, page },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const [
+    registerNewUser,
+    {
+      data: registerUserData,
+      isLoading: registerUserLoading,
+      isError: registerUserIsError,
+      error: registerUserError,
+      isSuccess: registerUserSuccess,
+    },
+  ] = useRegisterNewUserMutation();
 
   const [
     getUserUpline,
@@ -89,13 +108,16 @@ const { data, isLoading, isError, error, refetch } = useGetAllUsersQuery(
     },
   ] = useGetUserUplineMutation();
 
-  console.log("uplineData", uplineData);
-const handleDialogBoxOpen = async (userId) => {
-  setSelectedUserId(userId);
-  setOpenDrawer(true);
-  setUplinePage(1); 
-  await getUserUpline({ token: authToken, userId, uplinePage: 1 });
-};
+  const handleDialogBoxOpen = async (userId) => {
+    setSelectedUserId(userId);
+    setOpenDrawer(true);
+    setUplinePage(1);
+    await getUserUpline({ token: authToken, userId, uplinePage: 1 });
+  };
+
+  const handleOpenAnotherDialogBox = () => {
+    setOpenAnotherDialogBox(true);
+  };
 
   const [
     changeStatus,
@@ -134,11 +156,107 @@ const handleDialogBoxOpen = async (userId) => {
   const totalUplines = uplineData?.data?.totalUplines || 0;
   const curUplinePage = uplinePage;
 
+  const validationSchema = Yup.object({
+    fullName: Yup.string()
+      .required("Full name is required")
+      .min(3, "Full name should be at least 3 characters"),
+
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    phone: Yup.string()
+      .required("Phone Number is required")
+      .matches(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits"),
+    whatsapp: Yup.string().matches(
+      /^[0-9]{10}$/,
+      "Whatsapp number must be exactly 10 digits"
+    ),
+    dob: Yup.string().required("DOB is required"),
+  });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+  };
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    formData.append("fullName", values.fullName);
+    formData.append("email", values.email);
+    formData.append("dob", values.dob);
+    formData.append("whatsapp", values.whatsapp);
+    formData.append("phone", values.phone);
+    formData.append("referralCode", values.referralCode);
+
+    if (values.image) {
+      formData.append("image", Image);
+    }
+    try {
+      await registerNewUser({ token: authToken, formData });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      fullName: "",
+      email: "",
+      dob: "",
+      whatsapp: "",
+      phone: "",
+      referralCode: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: handleSubmit,
+  });
+
+  const {
+    touched,
+    errors,
+    values,
+    handleBlur,
+    handleChange,
+    resetForm,
+    dirty,
+  } = formik;
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+
+    if (Number(value) < 0) {
+      toast.error("Only positive numbers are allowed");
+      return;
+    }
+  
+
+    formik.setFieldValue("phone", value);
+  };
+
   useEffect(() => {
     if (isError && error) {
-      toast.error(error?.data.message || 'Something went wrong');
+      toast.error(error?.data?.message || "Something went wrong");
     }
   }, [error, isError]);
+  useEffect(() => {
+    if (registerUserIsError && registerUserError) {
+      toast.error(registerUserError?.data?.message || "Something went wrong");
+    }
+    if (registerUserSuccess && registerUserData) {
+      toast.success(
+        registerUserData?.message || "User has been added successfully"
+      );
+      resetForm();
+      setOpenAnotherDialogBox(false);
+      refetch();
+    }
+  }, [
+    registerUserError,
+    registerUserIsError,
+    registerUserData,
+    registerUserSuccess,
+  ]);
   useEffect(() => {
     if (uplineIsError && uplineError) {
       toast.error(uplineError?.data?.message);
@@ -147,10 +265,10 @@ const handleDialogBoxOpen = async (userId) => {
 
   useEffect(() => {
     if (tatusChangeIsSuccess && statusChangeData?.message) {
-      toast.success(statusChangeData.message);
+      toast.success(statusChangeData?.message);
       refetch();
     } else if (tatusChangesIsError && tatusChangeError?.data?.message) {
-      toast.error(tatusChangeError.data.message);
+      toast.error(tatusChangeError?.data?.message || "Something went wrong");
     }
   }, [tatusChangeIsSuccess, tatusChangesIsError]);
 
@@ -164,10 +282,10 @@ const handleDialogBoxOpen = async (userId) => {
     }
   }, [data]);
   useEffect(() => {
-  if (openDrawer && selectedUserId) {
-    getUserUpline({ token: authToken, userId: selectedUserId, uplinePage });
-  }
-}, [uplinePage]);
+    if (openDrawer && selectedUserId) {
+      getUserUpline({ token: authToken, userId: selectedUserId, uplinePage });
+    }
+  }, [uplinePage]);
 
   return (
     <>
@@ -213,8 +331,13 @@ const handleDialogBoxOpen = async (userId) => {
                       Manage and view all users in the system
                     </CardDescription>
                   </div>
-                  <Button asChild>
-                    <Link to="/add-user">Add User</Link>
+                  <Button
+                    onClick={handleOpenAnotherDialogBox}
+                    startIcon={<AddOutlinedIcon />}
+                    variant="contained"
+                    sx={{ backgroundColor: "#000000" }}
+                  >
+                    Add User
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -268,7 +391,7 @@ const handleDialogBoxOpen = async (userId) => {
                             <TableCell className="text-muted-foreground">
                               {user.status === true ? "Active" : "Inactive"}
                             </TableCell>
-                            <TableCell>{user.rank || "N/A"}</TableCell>
+                            <TableCell>{user?.rankId || "N/A"}</TableCell>
                             <TableCell>{user.level || "N/A"}</TableCell>
                             <TableCell>
                               <Switch
@@ -442,7 +565,8 @@ const handleDialogBoxOpen = async (userId) => {
                 <>
                   <Typography>
                     <p>
-                      Showing {uplineData?.data?.uplines.length} of  {totalUplines} uplined users
+                      Showing {uplineData?.data?.uplines.length} of{" "}
+                      {totalUplines} uplined users
                     </p>
                   </Typography>
                   <Pagination
@@ -470,6 +594,190 @@ const handleDialogBoxOpen = async (userId) => {
               )}
             </div>
           </div>
+        </DialogContentContainer>
+      </Dialog>
+      <Dialog
+        PaperProps={{
+          sx: {
+            width: "1000px",
+            maxWidth: "90%",
+
+            borderRadius: "30px",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backdropFilter: "blur(8px)",
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+          },
+        }}
+        fullWidth
+        open={openAnotherDialogBox}
+        onClose={handleCloseAnotherDialogBox}
+      >
+        <DialogContentContainer>
+          <FirstContainer>
+            <NewUserTypography>Add New User</NewUserTypography>
+            <IconButton onClick={handleCloseAnotherDialogBox}>
+              <CloseOutlinedIcon />
+            </IconButton>
+          </FirstContainer>
+          <Form onSubmit={formik.handleSubmit}>
+            <Fields>
+              <Field>
+                <Label htmlFor="fullName">
+                  Full Name <StarSpan>*</StarSpan>{" "}
+                </Label>
+                <InputField
+                  type="text"
+                  name="fullName"
+                  value={values.fullName}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  id="fullName"
+                  placeholder="Enter full name"
+                />
+                {touched.fullName && errors.fullName && (
+                  <div style={{ color: "red" }}>{errors.fullName}</div>
+                )}
+              </Field>
+              <Field>
+                <Label htmlFor="dob">
+                  Date Of Birth <StarSpan>*</StarSpan>{" "}
+                </Label>
+                <InputField
+                  value={values.dob}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  type="date"
+                  name="dob"
+                  id="dob"
+                />
+                {touched.dob && errors.dob && (
+                  <div style={{ color: "red" }}>{errors.dob}</div>
+                )}
+              </Field>
+            </Fields>
+            <Fields>
+              <Field>
+                <Label htmlFor="email">
+                  Email Address <StarSpan>*</StarSpan>{" "}
+                </Label>
+                <InputField
+                  type="text"
+                  name="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  id="email"
+                  placeholder="Enter email address"
+                />
+                {touched.email && errors.email && (
+                  <div style={{ color: "red" }}>{errors.email}</div>
+                )}
+              </Field>
+              <Field>
+                <Label htmlFor="phone">
+                  Phone Number <StarSpan>*</StarSpan>{" "}
+                </Label>
+                <InputField
+                  type="number"
+                  name="phone"
+                  value={values.phone}
+                  onChange={handlePhoneChange}
+                  onBlur={handleBlur}
+                  id="phone"
+                  placeholder="Enter phone number"
+                />
+                {touched.phone && errors.phone && (
+                  <div style={{ color: "red" }}>{errors.phone}</div>
+                )}
+              </Field>
+            </Fields>
+            <Fields>
+              <Field>
+                <Label htmlFor="whatsapp">
+                  Whatsapp Number <OptionalSpan>(optional)</OptionalSpan>{" "}
+                </Label>
+                <InputField
+                  type="number"
+                  name="whatsapp"
+                  value={values.whatsapp}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  id="whatsapp"
+                  placeholder="Enter whatsapp number"
+                />
+                {touched.whatsapp && errors.whatsapp && (
+                  <div style={{ color: "red" }}>{errors.whatsapp}</div>
+                )}
+              </Field>
+              <Field>
+                <Label htmlFor="image">
+                  Profile Image <OptionalSpan>(optional)</OptionalSpan>
+                </Label>
+                <InputField
+                  style={{ cursor: "pointer", paddingTop: "12px" }}
+                  accept="image/*"
+                  type="file"
+                  name="image"
+                  onChange={handleFileChange}
+                  id="image"
+                />
+              </Field>
+            </Fields>
+
+            <Field style={{ width: "100%" }}>
+              <Label htmlFor="referralCode">
+                Referral Code <OptionalSpan>(optional)</OptionalSpan>{" "}
+              </Label>
+              <InputField
+                type="text"
+                value={values.referralCode}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="referralCode"
+                id="referralCode"
+                placeholder="Enter refferal code or leave blank for direct registeration "
+              />
+            </Field>
+
+            <div
+              style={{ display: "flex", gap: "12px", justifyContent: "right" }}
+            >
+              <Button
+                onClick={() => {
+                  if (dirty) resetForm(); // Only reset if form is touched
+                  else handleCloseAnotherDialogBox();
+                }}
+                variant="outlined"
+                color="error"
+              >
+                Cancel
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={registerUserLoading}
+                variant="contained"
+                sx={{ backgroundColor: "#00A693" }}
+              >
+                {registerUserLoading ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <CircularProgress size={20} /> Saving ....
+                  </div>
+                ) : (
+                  "Save User"
+                )}
+              </Button>
+            </div>
+          </Form>
         </DialogContentContainer>
       </Dialog>
     </>
@@ -551,6 +859,22 @@ const UsersSidebar = ({ currentPath }) => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Recharge Wallet">
+                <Link to="/recharge-wallet">
+                  <History className="h-5 w-5" />
+                  <span>Recharge User Wallet</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+              <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Rank">
+                <Link to="/ranks">
+                  <History className="h-5 w-5" />
+                  <span>Rank</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -582,5 +906,75 @@ const DialogContentContainer = styled("div")`
 
   @media (max-width: 100vw) {
     width: 100%;
+  }
+`;
+const FirstContainer = styled("div")`
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+
+  @media (max-width: 100vw) {
+  }
+`;
+const Form = styled("form")`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+
+  @media (max-width: 100vw) {
+  }
+`;
+const Fields = styled("div")`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+
+  @media (max-width: 100vw) {
+  }
+`;
+const Field = styled("div")`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (max-width: 100vw) {
+  }
+`;
+
+const NewUserTypography = styled(Typography)`
+  font: 600 24px Montserrat;
+  color: #00a693;
+`;
+const Label = styled("label")`
+  font: 500 16px Montserrat;
+  color: #00000;
+`;
+const StarSpan = styled("span")`
+  color: red;
+`;
+const OptionalSpan = styled("span")`
+  font: 500 14px Montserrat;
+  color: gray;
+`;
+const InputField = styled("input")`
+  width: 100%;
+  border: 1px solid #000000;
+  height: 50px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 10px;
+  font: 500 16px Montserrat;
+  color: #000000;
+
+  &:focus {
+    outline: none;
+    border: 2px solid #00a693;
   }
 `;

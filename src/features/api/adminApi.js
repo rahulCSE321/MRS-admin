@@ -10,8 +10,8 @@ export const adminApi = createApi({
   }),
   endpoints: (builder) => ({
     getAllUsers: builder.query({
-      query: ({token,page=1}) => ({
-        url: `users/getAllUsers?page=${page}`,
+      query: ({token,page=1,forWallet="false"}) => ({
+        url: `users/getAllUsers?page=${page}&forWallet=${forWallet}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,6 +30,33 @@ export const adminApi = createApi({
     getMasterPlan: builder.query({
       query: (token) => ({
         url: "getAllMasterplans",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    getAllRanks: builder.query({
+      query: ({token}) => ({
+        url: "ranks/getAllRank",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    getPreviousTransactions: builder.mutation({
+      query: ({token,fromDate='',toDate='',userId}) => ({
+        url: `wallets/wallet-history?fromDate=${fromDate}&toDate=${toDate}&userId=${userId}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    getUserWalletRecharge: builder.query({
+      query: ({token,wallet_recharge="wallet_recharge",page=1}) => ({
+        url: `users/walletHistory?transactionType=${wallet_recharge}&page=${page}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,6 +110,26 @@ export const adminApi = createApi({
         body: values,
       }),
     }),
+    registerNewUser: builder.mutation({
+      query: ({ token, formData }) => ({
+        url: "users/register",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }),
+    }),
+    rechargeWallet: builder.mutation({
+      query: ({ token, userId,amount,transactionType }) => ({
+        url: "wallets/userWalletRecharge",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: {userId,amount,transactionType},
+      }),
+    }),
   }),
 });
 
@@ -94,5 +141,10 @@ export const {
 useGetUsersIncomeMutation,
 useChangeStatusMutation,
 useGetUserUplineMutation,
-useGetBankDetailsByIdMutation
+useGetBankDetailsByIdMutation,
+useRegisterNewUserMutation,
+useGetUserWalletRechargeQuery,
+useRechargeWalletMutation,
+useGetPreviousTransactionsMutation,
+useGetAllRanksQuery
 } = adminApi;

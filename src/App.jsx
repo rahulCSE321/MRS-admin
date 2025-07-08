@@ -9,6 +9,8 @@ import Bank from "./pages/Bank";
 import MasterPlan from "./pages/MasterPlan";
 import UserPlanHistory from "./pages/UserPlanHistory";
 import UsersIncome from "./pages/UsersIncome";
+import RechargeWallet from "./pages/RechargeWallet";
+import Rank from "./pages/Rank";
 
 const queryClient = new QueryClient();
 
@@ -22,8 +24,10 @@ const App = () => (
         <Route path="/master-plan" element={<MasterPlan />} />
         <Route path="/user-plan-history" element={<UserPlanHistory />} />
         <Route path="/users-income" element={<UsersIncome />} />
-        <Route path="/banks" element={<Bank />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="/recharge-wallet" element={<RechargeWallet />} />
+        <Route path="/banks" element={<Bank />} />
+        <Route path="/ranks" element={<Rank />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

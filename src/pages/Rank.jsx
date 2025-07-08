@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import {
   Table,
   TableBody,
@@ -54,49 +55,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   useCreateMasterPlanMutation,
-  useGetMasterPlanQuery,
+  useGetAllRanksQuery,
 } from "../features/api/adminApi";
 import toast from "react-hot-toast";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, IconButton, Tooltip } from "@mui/material";
 
-// Mock master plan data
-const masterPlanData = [
-  {
-    id: 1,
-    planName: "Basic Plan",
-    amount: "$9.99",
-    validity: "1 Month",
-  },
-  {
-    id: 2,
-    planName: "Premium Plan",
-    amount: "$19.99",
-    validity: "3 Months",
-  },
-  {
-    id: 3,
-    planName: "Enterprise Plan",
-    amount: "$49.99",
-    validity: "6 Months",
-  },
-  {
-    id: 4,
-    planName: "Pro Plan",
-    amount: "$29.99",
-    validity: "1 Year",
-  },
-  {
-    id: 5,
-    planName: "Starter Plan",
-    amount: "$4.99",
-    validity: "2 Weeks",
-  },
-];
-
-const MasterPlan = () => {
+const Rank = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAddPlanOpen, setIsAddPlanOpen] = useState(false);
-  const [plans, setPlans] = useState(masterPlanData);
   const [formData, setFormData] = useState({
     planName: "",
     amount: "",
@@ -124,9 +90,13 @@ const MasterPlan = () => {
     await createMasterPlan({ values: formData, token: authToken });
   };
 
-  const { data, refetch ,isLoading:dataLoading} = useGetMasterPlanQuery(authToken ?? "", {
-    skip: !authToken,
-  });
+  const {
+    data,
+    refetch,
+    isLoading: dataLoading,
+  } = useGetAllRanksQuery({ token: authToken });
+
+  console.log("data", data);
 
   useEffect(() => {
     if (isSuccess) {
@@ -145,7 +115,7 @@ const MasterPlan = () => {
     <SidebarProvider>
       <div className="flex min-h-svh w-full">
         {/* Sidebar */}
-        <MasterPlanSidebar />
+        <RankSidebar />
 
         {/* Main Content */}
         <SidebarInset>
@@ -184,27 +154,24 @@ const MasterPlan = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>All Plans</CardTitle>
-                  <CardDescription>
-                    Manage and view all subscription plans
-                  </CardDescription>
+                  <CardTitle>Ranks Management</CardTitle>
                 </div>
                 <Dialog open={isAddPlanOpen} onOpenChange={setIsAddPlanOpen}>
                   <DialogTrigger asChild>
-                    <Button>Add Plan</Button>
+                    <Button>Add Rank</Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Add New Plan</DialogTitle>
+                      <DialogTitle>Add New Rank</DialogTitle>
                       <DialogDescription>
-                        Create a new subscription plan with the details below.
+                        Create a new rank with the details below.
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit}>
                       <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="planName" className="text-right">
-                            Plan Name
+                            Rank Name *
                           </Label>
                           <Input
                             id="planName"
@@ -212,34 +179,6 @@ const MasterPlan = () => {
                             value={formData.planName}
                             onChange={handleInputChange}
                             placeholder="Enter plan name"
-                            className="col-span-3"
-                            required
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="amount" className="text-right">
-                            Amount
-                          </Label>
-                          <Input
-                            id="amount"
-                            name="amount"
-                            value={formData.amount}
-                            onChange={handleInputChange}
-                            placeholder="e.g., $9.99"
-                            className="col-span-3"
-                            required
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="validity" className="text-right">
-                            Validity
-                          </Label>
-                          <Input
-                            id="validity"
-                            name="validity"
-                            value={formData.validity}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 1 Month"
                             className="col-span-3"
                             required
                           />
@@ -263,9 +202,11 @@ const MasterPlan = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Plan Name</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Validity</TableHead>
+                      <TableHead>S.NO</TableHead>
+                      <TableHead>Rank Name</TableHead>
+                      <TableHead>Rank Status</TableHead>
+                      <TableHead>Refferal</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -279,23 +220,68 @@ const MasterPlan = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      data?.plans.map((plan) => (
-                        <TableRow key={plan.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
-                                <CreditCard className="h-4 w-4 text-primary" />
-                              </div>
-                              <div className="font-medium">{plan.planName}</div>
-                            </div>
+                      data?.data?.map((rank, i) => (
+                        <TableRow key={rank.id}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell
+                            style={{
+                              color:
+                                rank?.name === "Diamond"
+                                  ? "#b9f2ff"
+                                  : rank?.name === "Gold"
+                                  ? "#FFD700"
+                                  : rank?.name === "Platinum"
+                                  ? "#E5E4E2"
+                                  : rank?.name === "Peral"
+                                  ? "#EAE0C8"
+                                  : rank?.name === "Silver"
+                                  ? "#C0C0C0"
+                                  : "",
+                           
+                            }}
+                          >
+                            {rank?.name || "N/A"}
                           </TableCell>
-                          <TableCell className="font-semibold text-green-600">
-                            {plan.amount}
+                          <TableCell>
+                            {rank?.status === true ? (
+                              <div
+                                style={{
+                                  width: "60px",
+                                  backgroundColor: "green",
+                                  padding: "5px",
+                                  borderRadius: "12px",
+                                  textAlign: "center",
+                                  color: "white",
+                                }}
+                              >
+                                Active
+                              </div>
+                            ) : (
+                              <div
+                                style={{
+                                  width: "60px",
+                                  backgroundColor: "red",
+                                  padding: "5px",
+                                  borderRadius: "12px",
+                                  textAlign: "center",
+                                  color: "white",
+                                }}
+                              >
+                                Inactive
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                              {plan.validity}
+                              {rank?.referral || "N/A"}
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title="Edit rank">
+                              <IconButton>
+                                <EditOutlinedIcon />
+                              </IconButton>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))
@@ -312,7 +298,7 @@ const MasterPlan = () => {
 };
 
 // Sidebar Component for Master Plan page
-const MasterPlanSidebar = () => (
+const RankSidebar = () => (
   <Sidebar variant="inset">
     <SidebarHeader>
       <div className="flex items-center gap-2 px-2">
@@ -351,7 +337,7 @@ const MasterPlanSidebar = () => (
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton isActive tooltip="Master Plan">
+              <SidebarMenuButton tooltip="Master Plan">
                 <CreditCard className="h-5 w-5" />
                 <span>Master Plan</span>
               </SidebarMenuButton>
@@ -378,7 +364,7 @@ const MasterPlanSidebar = () => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-              <SidebarMenuItem>
+            <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Recharge Wallet">
                 <Link to="/recharge-wallet">
                   <History className="h-5 w-5" />
@@ -386,8 +372,8 @@ const MasterPlanSidebar = () => (
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-              <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Rank">
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive tooltip="Rank">
                 <Link to="/ranks">
                   <History className="h-5 w-5" />
                   <span>Rank</span>
@@ -413,4 +399,4 @@ const MasterPlanSidebar = () => (
   </Sidebar>
 );
 
-export default MasterPlan;
+export default Rank;
